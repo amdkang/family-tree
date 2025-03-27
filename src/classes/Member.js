@@ -1,5 +1,5 @@
 class Member {
-    constructor({ memberID, level, x = 0, y = 0, parentMarriage = 0, marriage = 0, isAddOnSpouse = false, name, image = "avatar1.png" } = {}) {
+    constructor({ memberID, level, x = 0, y = 0, parentMarriage = 0, marriage = 0, isAddOnSpouse = false, name, image = "/assets/avatar1.png" } = {}) {
         this.memberID = memberID;
         this.level = level; 
         this.x = x;

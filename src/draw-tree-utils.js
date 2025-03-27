@@ -28,8 +28,7 @@ const clearTree = () => {
 
 const createNodes = (handleMemberClick) => { 
     const svg = d3.select("#tree-svg");
-    const nodeContainer = svg.append("g").attr("id", "nodes-container");
-     
+    const nodeContainer = svg.append("g").attr("id", "nodes-container"); 
     // create/binds member data to node
     const nodes = nodeContainer.selectAll("g") 
         .data(Array.from(members.map.values()), d => d.memberID) 
@@ -37,8 +36,10 @@ const createNodes = (handleMemberClick) => {
         .append("g")
         .attr("id", d => `g-${ d.memberID }`)
         .attr("transform", `translate(0, 0)`)
-        .on("click", function(event, d) {
-            handleMemberClick(d.memberID); 
+        .on("click", function(event, d) { 
+            const memberNode = document.getElementById(`g-${d.memberID}`); 
+            const memberNodeRect = memberNode.getBoundingClientRect(); 
+            handleMemberClick(d.memberID, memberNodeRect, event); 
         })
         .on("mouseover", function() {
             // highlights node
@@ -63,17 +64,17 @@ const createNodes = (handleMemberClick) => {
             .attr("fill", "none")
             .attr("stroke", contrastColor)
             .attr("stroke-width", 2) 
-            .attr("r", NODE_RADIUS)
+            .attr("r", NODE_RADIUS+1)
             .attr("id", d => `circle-${ d.memberID }`)
-            .attr("cx", 50)  
-            .attr("cy", 50)
+            .attr("cx", NODE_RADIUS)  
+            .attr("cy", NODE_RADIUS)
             .attr("transform", `translate(0,0)`);
 
         // inserts member profile picture
         d3.select(this)
             .append("image")
             .attr("id", d => `image-${ d.memberID }`)
-            .attr("href", `/assets/${ d.image }`)
+            .attr("href", d.image)
             .attr("width", NODE_RADIUS*2)
             .attr("height", NODE_RADIUS*2)   
             .attr("clip-path", "inset(0% round 50%)");

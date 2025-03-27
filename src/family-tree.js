@@ -6,9 +6,10 @@ import { Marriage } from "./classes/Marriage.js";
 import { Member } from "./classes/Member.js";
 
 const imgsCount = 5; 
-let selectedImgName = "avatar1.png";
+let selectedImgName = "/assets/avatar1.png";
 let selectedMember = null;
 let formType = "edit";
+
 
 var levels = new LevelMap(
     new Map([
@@ -34,11 +35,11 @@ var members = new MemberMap(
 
 
 const dialog = document.querySelector("dialog");
-const formDialog = document.getElementById('add-member-form');
+const formDialog = document.getElementById('member-form');
 
 
 window.onload = function () { 
-    setupDialog(); 
+    setupDialog();  
     // treeUtils.addParent({ name: "mom" }, 1, members, levels);   
     // treeUtils.addParent({ name: "dad" }, 1, members, levels);    
     // treeUtils.addSibling({ name: "sis"}, 1, members, levels); 
@@ -79,6 +80,10 @@ function dragElement(elmnt) {
     document.onmousemove = elementDrag;
   }
 
+   // Get window and element dimensions
+   const windowWidth = window.innerWidth;
+   const windowHeight = window.innerHeight;
+
   function elementDrag(e) {
     e = e || window.event;
     e.preventDefault();
@@ -87,9 +92,12 @@ function dragElement(elmnt) {
     pos2 = pos4 - e.clientY;
     pos3 = e.clientX;
     pos4 = e.clientY;
+
+    let x = Math.max(0, Math.min(windowWidth - 500, e.clientX-25));
+    let y = Math.max(0, Math.min(windowHeight - 480, e.clientY-25));
     // set the element's new position:
-    elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
-    elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+    elmnt.style.left = x + "px";
+    elmnt.style.top = y + "px"; 
   }
 
   function closeDragElement() {
@@ -119,26 +127,25 @@ function setupDialog() {
 
 function closeForm() { 
     selectedMember = null;
-    selectedImgName = "avatar1.png";
+    selectedImgName = "/assets/avatar1.png";
     const selectedImg = document.getElementById("selected-img");
-    selectedImg.src = `/assets/${selectedImgName}`; 
-    let form = document.getElementById("add-member-form");
+    selectedImg.src = selectedImgName; 
+    let form = document.getElementById("member-form");
     form.reset();
     dialog.close();
 };
 
 // Callback to update selectedItem
-function handleMemberClick(selectedMemberID) { 
-    setupForm(selectedMemberID);
+function handleMemberClick(selectedMemberID, memberNode, event) { 
+    setupForm(selectedMemberID);   
+    dialog.style.left = `${memberNode.right + 30}px`;
+    dialog.style.top = `${memberNode.top + 50 - 240}px`; 
+
     dialog.showModal(); 
 };
 
 function setupForm(selectedMemberID) { 
-    selectedMember = members.get(selectedMemberID);  
-    let selectedMemberImg = document.getElementById("selected-member-img");
-    selectedMemberImg.src = `/assets/${ selectedMember.image }`;
-    let selectedMembername = document.getElementById("selected-member-name");
-    selectedMembername.textContent = selectedMember.name;
+    selectedMember = members.get(selectedMemberID);   
 
     let title = document.getElementById("dialog-header");
     let formBottomSection = document.getElementById("form-bottom-section");    
@@ -147,12 +154,16 @@ function setupForm(selectedMemberID) {
     if (formType == "add") {
         title.textContent = "Add a New Member";
         if (classes.contains("hidden")) classes.remove("hidden");
+        let selectedMemberImg = document.getElementById("selected-member-img");
+        selectedMemberImg.src = selectedMember.image;
+        let selectedMembername = document.getElementById("selected-member-name");
+        selectedMembername.textContent = selectedMember.name; 
     } else {
         title.textContent = "Edit Member"
         if (!classes.contains("hidden")) classes.add("hidden"); 
-        selectedImg.src = `/assets/${ selectedMember.image }`;
+        selectedImg.src = selectedMember.image;
         let nameInput = document.getElementById("name");
-        nameInput.textContent = selectedMember.name;
+        nameInput.value = selectedMember.name; 
     } 
 } 
 
@@ -184,23 +195,58 @@ function handleEditMember() {
     let member = members.get(selectedMember.memberID);
     member.name = name;
     member.image = selectedImgName;
+    console.log('members: ', members);
     buildTree();
 }
 
 function setupImgSelector() {
     const imgSelector = document.getElementById("default-imgs"); 
     const selectedImg = document.getElementById("selected-img");
-    selectedImg.src = `/assets/${selectedImgName}`; 
+    selectedImg.src = selectedImgName; 
 
     for (let i = 1; i <= imgsCount; i++) { 
-        let imgName = `avatar${i}.png`;
+        let imgName = `/assets/avatar${i}.png`;
         let img = document.createElement("img");
         img.className = "default-img";
-        img.src = `/assets/avatar${i}.png`;  
+        img.src = imgName;  
         img.addEventListener("click", () => {
             selectedImgName = imgName;
-            selectedImg.src = `/assets/${imgName}`;  
+            selectedImg.src = imgName;  
         });
         imgSelector.append(img);
     };
+
+    let customImg = document.createElement("label");
+    customImg.id = "custom-img"; 
+    customImg.textContent = "+";
+    let tooltip = createTooltip("Upload an Image");
+    customImg.append(tooltip);
+    let fileInput = document.createElement("input");
+    fileInput.type = "file";
+    fileInput.onchange = () => { 
+        console.log(fileInput.files);
+        const files = fileInput.files;
+        if (files.length > 0) {
+            const file = files[0];
+            const reader = new FileReader(); 
+            reader.onload = function (e) {
+                selectedImgName = e.target.result;
+                selectedImg.src = selectedImgName; 
+                
+            }; 
+            reader.readAsDataURL(file);
+        }
+    }  
+    customImg.append(fileInput);
+    imgSelector.append(customImg);
+}; 
+
+function createTooltip(tooltipText) {
+    let tooltip = document.createElement("div");
+    tooltip.className = "tooltip"; 
+    let text = document.createElement("div");
+    text.className = "tooltip-text";
+    text.textContent = tooltipText; 
+    tooltip.appendChild(text);
+    return tooltip;
 };
