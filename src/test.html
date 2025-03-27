@@ -13,19 +13,30 @@
     </head>
 
     <body>
-        <div id="header" >
+        <div id="header">
             <div>
-                <h1>Family Tree</h1>  
-                <span class="subtitle">subtitle subtitle subtitle</span>
+                <h1>Family Tree Builder</h1>  
+                <div id="subtitle-container">
+                    <button id="subtitle-btn" class="hidden">x</button>
+                    <p id="subtitle">Build and Browse with Simplicity</p>
+                </div>
             </div>
-            <div id="header-btns-container">
-                <button  class="outline-btn">+ Add Member</button>
-                <button  class="filled-btn">Edit Member</button> 
+            <div id="header-btns-container"> 
+                <button id="add-btn" class="circle-btn">
+                    <img class="btn-img" src="../assets/plus.png" />
+                </button>
+                <button id="edit-btn" class="circle-btn">
+                    <img class="btn-img" src="../assets/edit.png" />
+                </button>
+                <button id="delete-btn" class="circle-btn">
+                    <img class="btn-img" src="../assets/trash.png" />
+                </button> 
             </div> 
         </div>
-        <dialog id="edit-tree-dialog">
-            <div id="dialog-header"></div>
-            <div id="dialog-body">
+
+        <dialog id="member-form-dialog">
+            <div id="form-header"></div>
+            <div id="form-body">
                 <div id="img-selector">
                     <img id="selected-img" />
                     <div id="default-imgs"></div> 

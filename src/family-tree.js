@@ -6,11 +6,10 @@ import { Marriage } from "./classes/Marriage.js";
 import { Member } from "./classes/Member.js";
 
 const imgsCount = 5; 
-let selectedImgName = "/assets/avatar1.png";
+let selectedImgPath = "../assets/avatar1.png";
 let selectedMember = null;
 let formType = "edit";
-
-
+let selectMode = null;
 var levels = new LevelMap(
     new Map([
         [-1, 
@@ -33,144 +32,73 @@ var members = new MemberMap(
     [1]
 );    
 
-
 const dialog = document.querySelector("dialog");
-const formDialog = document.getElementById('member-form');
+const memberForm = document.getElementById("member-form");
+const selectedMemberImg = document.getElementById("selected-img");
+const nameInput = document.getElementById("name");   
 
-
-window.onload = function () { 
-    setupDialog();  
-    // treeUtils.addParent({ name: "mom" }, 1, members, levels);   
-    // treeUtils.addParent({ name: "dad" }, 1, members, levels);    
-    // treeUtils.addSibling({ name: "sis"}, 1, members, levels); 
-    // treeUtils.addSibling({ name: "aunt"}, 2, members, levels); 
-    // treeUtils.addChild({ name: "aunt son"}, 5, members, levels);
-    // treeUtils.addParent({ name: "gma" }, 2, members, levels);   
-    // treeUtils.addParent({ name: "gpa" }, 5, members, levels);   
+window.onload = function () {  
+    setupHeaderButtons();
+    setupFormDialog();    
+    dragElement(dialog);
     buildTree();
 };   
+
+function setupHeaderButtons() {
+    let subtitle = document.getElementById("subtitle");
+
+    let addBtn = document.getElementById("add-btn");
+    let addTooltip = createTooltip("Add a Member");
+    addBtn.append(addTooltip);
+    addBtn.onclick = () => {
+        selectMode = "add";
+        enterSelectMemberMode(subtitle, "Add To");
+    };
+
+    let editBtn = document.getElementById("edit-btn");
+    let editTooltip = createTooltip("Edit a Member");
+    editBtn.append(editTooltip);
+    editBtn.onclick = () => {
+        selectMode = "edit";
+        enterSelectMemberMode(subtitle, "Edit");
+    }
+
+    let deleteBtn = document.getElementById("delete-btn");
+    let delTooltip = createTooltip("Add a Member");
+    deleteBtn.append(delTooltip);
+    deleteBtn.onclick = () => {
+        selectMode = "delete";
+        enterSelectMemberMode(subtitle, "Delete");
+    };
+};
+
+function enterSelectMemberMode(subtitle, text) {
+    let subtitleBtn = document.getElementById("subtitle-btn");
+    subtitleBtn.onclick = exitSelectMemberMode;
+    subtitle.textContent = `Select Member Below to ${text}:`; 
+    let classes = subtitleBtn.classList;  
+    if (classes.contains("hidden")) classes.remove("hidden");
+};
+
+function exitSelectMemberMode() {
+    selectMode = null;
+    let subtitleBtn = document.getElementById("subtitle-btn");
+    let classes = subtitleBtn.classList;  
+    if (!classes.contains("hidden")) classes.add("hidden");
+    subtitle.textContent = "Map Your Family History with Ease"; 
+};
+
+
+/** Tree Functions */ 
 
 function buildTree() { 
     treeUtils.positionMembers(members, levels); 
     drawTree.drawTree(members, levels, handleMemberClick); 
-}
-
-
-
-dragElement(document.getElementById("edit-tree-dialog"));
-
-function dragElement(elmnt) {
-  var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
-  if (document.getElementById("dialog-header")) {
-    /* if present, the header is where you move the DIV from:*/
-    document.getElementById("dialog-header").onmousedown = dragMouseDown;
-  } else {
-    /* otherwise, move the DIV from anywhere inside the DIV:*/
-    elmnt.onmousedown = dragMouseDown;
-  }
-
-  function dragMouseDown(e) {
-    e = e || window.event;
-    e.preventDefault();
-    // get the mouse cursor position at startup:
-    pos3 = e.clientX;
-    pos4 = e.clientY;
-    document.onmouseup = closeDragElement;
-    // call a function whenever the cursor moves:
-    document.onmousemove = elementDrag;
-  }
-
-   // Get window and element dimensions
-   const windowWidth = window.innerWidth;
-   const windowHeight = window.innerHeight;
-
-  function elementDrag(e) {
-    e = e || window.event;
-    e.preventDefault();
-    // calculate the new cursor position:
-    pos1 = pos3 - e.clientX;
-    pos2 = pos4 - e.clientY;
-    pos3 = e.clientX;
-    pos4 = e.clientY;
-
-    let x = Math.max(0, Math.min(windowWidth - 500, e.clientX-25));
-    let y = Math.max(0, Math.min(windowHeight - 480, e.clientY-25));
-    // set the element's new position:
-    elmnt.style.left = x + "px";
-    elmnt.style.top = y + "px"; 
-  }
-
-  function closeDragElement() {
-    /* stop moving when mouse button is released:*/
-    document.onmouseup = null;
-    document.onmousemove = null;
-  }
-}
-
-
-// form dialog functions
- 
-function setupDialog() {  
-    setupImgSelector();  
-    formDialog.addEventListener("submit", (event) => {
-        event.preventDefault();  
-        if (formType == "add") {
-            handleAddMember(); 
-        } else {
-            handleEditMember();
-        } 
-        closeForm(); 
-    }); 
-    const cancelButton = document.getElementById("cancel-btn");  
-    cancelButton.addEventListener("click", closeForm);
-}; 
-
-function closeForm() { 
-    selectedMember = null;
-    selectedImgName = "/assets/avatar1.png";
-    const selectedImg = document.getElementById("selected-img");
-    selectedImg.src = selectedImgName; 
-    let form = document.getElementById("member-form");
-    form.reset();
-    dialog.close();
 };
-
-// Callback to update selectedItem
-function handleMemberClick(selectedMemberID, memberNode, event) { 
-    setupForm(selectedMemberID);   
-    dialog.style.left = `${memberNode.right + 30}px`;
-    dialog.style.top = `${memberNode.top + 50 - 240}px`; 
-
-    dialog.showModal(); 
-};
-
-function setupForm(selectedMemberID) { 
-    selectedMember = members.get(selectedMemberID);   
-
-    let title = document.getElementById("dialog-header");
-    let formBottomSection = document.getElementById("form-bottom-section");    
-    let classes = formBottomSection.classList;
-    let selectedImg = document.getElementById("selected-img");
-    if (formType == "add") {
-        title.textContent = "Add a New Member";
-        if (classes.contains("hidden")) classes.remove("hidden");
-        let selectedMemberImg = document.getElementById("selected-member-img");
-        selectedMemberImg.src = selectedMember.image;
-        let selectedMembername = document.getElementById("selected-member-name");
-        selectedMembername.textContent = selectedMember.name; 
-    } else {
-        title.textContent = "Edit Member"
-        if (!classes.contains("hidden")) classes.add("hidden"); 
-        selectedImg.src = selectedMember.image;
-        let nameInput = document.getElementById("name");
-        nameInput.value = selectedMember.name; 
-    } 
-} 
 
 function handleAddMember() { 
-    const name = document.getElementById('name').value;   
     const relation = document.querySelector('input[name="relation"]:checked').value;  
-    const newMemberData = { name: name, image: selectedImgName }; 
+    const newMemberData = { name: nameInput.value, image: selectedImgPath }; 
     switch (relation) {
         case "child":
             treeUtils.addChild(newMemberData, selectedMember.memberID, members, levels);
@@ -190,49 +118,102 @@ function handleAddMember() {
     buildTree();
 };
 
-function handleEditMember() {
-    const name = document.getElementById('name').value;   
+function handleEditMember() {   
     let member = members.get(selectedMember.memberID);
-    member.name = name;
-    member.image = selectedImgName;
-    console.log('members: ', members);
+    member.name = nameInput.value;
+    member.image = selectedImgPath; 
     buildTree();
-}
+};
+
+function handleDelMember() {
+
+};
+
+
+
+/** Add/Edit Member Form Functions */ 
+
+function setupFormDialog() {  
+    setupImgSelector();  
+    memberForm.onsubmit = () => {
+        if (selectMode == "add") {
+            handleAddMember(); 
+        } else if (selectMode == "edit") {
+            handleEditMember();
+        } 
+        closeForm();
+    };
+    document.getElementById("cancel-btn").onclick = closeForm;
+}; 
+
+function closeForm() { 
+    selectedMember = null;
+    selectedImgPath = "../assets/avatar1.png";
+    selectedMemberImg.src = selectedImgPath;  
+    memberForm.reset();
+    exitSelectMemberMode();
+    dialog.close();
+};
+
+// Callback to update selectedItem
+function handleMemberClick(selectedMemberID, memberNode) { 
+    setFormValues(selectedMemberID);   
+    dialog.style.left = `${ memberNode.right + 30 }px`;
+    dialog.style.top = `${ memberNode.top + 50 - 240 }px`; 
+    dialog.showModal(); 
+};
+
+function setFormValues(selectedMemberID) { 
+    selectedMember = members.get(selectedMemberID);    
+    let header = document.getElementById("form-header"); 
+    let formBtmClasses = document.getElementById("form-bottom-section").classList; 
+    if (formType == "add") {
+        header.textContent = "Add a New Member"; 
+        if (formBtmClasses.contains("hidden")) formBtmClasses.remove("hidden");
+        document.getElementById("selected-member-img").src = selectedMember.image;
+        document.getElementById("selected-member-name").textContent = selectedMember.name; 
+    } else {
+        header.textContent = "Edit Member"
+        if (!formBtmClasses.contains("hidden")) formBtmClasses.add("hidden"); 
+        selectedImg.src = selectedMember.image; 
+        nameInput.value = selectedMember.name; 
+    } 
+};
 
 function setupImgSelector() {
-    const imgSelector = document.getElementById("default-imgs"); 
-    const selectedImg = document.getElementById("selected-img");
-    selectedImg.src = selectedImgName; 
+    const imgSelector = document.getElementById("default-imgs");  
+    selectedMemberImg.src = selectedMemberImg; 
 
+    // set default selectable images
     for (let i = 1; i <= imgsCount; i++) { 
-        let imgName = `/assets/avatar${i}.png`;
+        let imgName = `../assets/avatar${i}.png`;
         let img = document.createElement("img");
         img.className = "default-img";
         img.src = imgName;  
-        img.addEventListener("click", () => {
-            selectedImgName = imgName;
-            selectedImg.src = imgName;  
-        });
+        img.onclick = () => {
+            selectedImgPath = imgName;
+            selectedMemberImg.src = imgName; 
+        };
         imgSelector.append(img);
     };
 
-    let customImg = document.createElement("label");
-    customImg.id = "custom-img"; 
-    customImg.textContent = "+";
+    let addCustomImgBtn = document.createElement("label");
+    addCustomImgBtn.id = "custom-img"; 
+    addCustomImgBtn.textContent = "+";
     let tooltip = createTooltip("Upload an Image");
-    customImg.append(tooltip);
+    addCustomImgBtn.append(tooltip);
+
     let fileInput = document.createElement("input");
     fileInput.type = "file";
-    fileInput.onchange = () => { 
-        console.log(fileInput.files);
+    fileInput.onchange = () => {  
+        // 
         const files = fileInput.files;
         if (files.length > 0) {
             const file = files[0];
             const reader = new FileReader(); 
             reader.onload = function (e) {
-                selectedImgName = e.target.result;
-                selectedImg.src = selectedImgName; 
-                
+                selectedImgPath = e.target.result;
+                selectedMemberImg.src = selectedMemberImg;  
             }; 
             reader.readAsDataURL(file);
         }
@@ -250,3 +231,47 @@ function createTooltip(tooltipText) {
     tooltip.appendChild(text);
     return tooltip;
 };
+
+function dragElement(elmnt) {
+    var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+    const formHeader = document.getElementById("form-header");
+
+    formHeader.onmousedown = dragMouseDown;
+  
+    function dragMouseDown(e) {
+      e = e || window.event;
+      e.preventDefault();
+      // get the mouse cursor position at startup:
+      pos3 = e.clientX;
+      pos4 = e.clientY;
+      document.onmouseup = closeDragElement;
+      // call a function whenever the cursor moves:
+      document.onmousemove = elementDrag;
+    }
+  
+     // Get window and element dimensions
+     const windowWidth = window.innerWidth;
+     const windowHeight = window.innerHeight;
+  
+    function elementDrag(e) {
+      e = e || window.event;
+      e.preventDefault();
+      // calculate the new cursor position:
+      pos1 = pos3 - e.clientX;
+      pos2 = pos4 - e.clientY;
+      pos3 = e.clientX;
+      pos4 = e.clientY;
+  
+      let x = Math.max(0, Math.min(windowWidth - 500, e.clientX-25));
+      let y = Math.max(0, Math.min(windowHeight - 480, e.clientY-25));
+      // set the element's new position:
+      elmnt.style.left = x + "px";
+      elmnt.style.top = y + "px"; 
+    }
+  
+    function closeDragElement() {
+      /* stop moving when mouse button is released:*/
+      document.onmouseup = null;
+      document.onmousemove = null;
+    }
+  }

@@ -10,7 +10,7 @@
 } */
 
 body {  
-    padding: 10px;
+    padding: 10px 20px 20px 20px;
     height: 100vh;
     display: flex;
     flex-direction: column;
@@ -27,8 +27,9 @@ body {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+    align-items: center;
     padding: 0 15px;
-    margin-bottom: 5px; 
+    margin-bottom: 15px; 
 }
 
 #header-btns-container {
@@ -36,13 +37,68 @@ body {
     flex-direction: row;
     justify-content: flex-end;
     align-items: center;
-    gap: 10px; 
+    gap: 20px; 
+    /* height: 70%;
+    padding: 0 10px;
+    border-radius: 40px;
+    background-color: #474747; */
+}
+
+.btn-img {
+    width: 18px;
+    height: 18px;
+
+}
+ 
+.circle-btn {
+    width: 50px;
+    height: 50px;
+    background-color: slateblue;
+    border-style: none;
+    border-radius: 50%;
+    color: white;
+    font-size: 22px;
+}
+
+.circle-btn:hover .tooltip {
+    visibility: visible;
+    margin: 20px 0px 0 -25px;
 }
 
 h1 { 
     font-size: 30px;
     font-weight: 300;
     padding: 0; 
+}
+
+#subtitle-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+}
+
+
+
+#subtitle-btn { 
+    width: 20px;
+    height: 20px;
+    border: 1px solid slateblue;
+    border-radius: 5px;
+    background-color: transparent;
+    color: slateblue;
+}
+
+#subtitle-btn:hover { 
+    background-color: slateblue;
+    color: white;
+}
+
+#subtitle {
+    display: inline-block;
+    font-size: 18px;
+    color: slateblue;
+    margin-top: 2px;
 }
  
 .hidden {
@@ -65,7 +121,7 @@ dialog {
   }
 
   
-#edit-tree-dialog {
+#member-form-dialog {
     position: absolute;
     z-index: 9;
     width: 500px;
@@ -79,7 +135,7 @@ dialog {
     box-sizing: border-box;
 }
  
-#dialog-header {
+#form-header {
     background-color: slateblue;
     border-radius: 6px 6px 0 0;
     padding: 10px;
@@ -88,7 +144,7 @@ dialog {
     font-size: 22px; 
 }
 
-#dialog-body {
+#form-body {
     margin: 20px;
 }
 
@@ -272,8 +328,10 @@ button:hover {
 }
 
 .filled-btn {
-    width: 80px;
+    width: fit-content;
+    /* width: 80px; */
     height: 35px;
+    padding: 0 15px;
     border: 1px solid slateblue;
     background-color: slateblue;
     color: white;
@@ -303,4 +361,3 @@ button:hover {
     border-radius: 6px; 
     padding: 5px 8px;
 }
-
