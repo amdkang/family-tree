@@ -22,28 +22,42 @@
                 </div>
             </div>
             <div id="header-btns-container"> 
-                <button id="add-btn" class="circle-btn">
-                    <img class="btn-img" src="../assets/plus.png" />
-                </button>
-                <button id="edit-btn" class="circle-btn">
-                    <img class="btn-img" src="../assets/edit.png" />
-                </button>
-                <button id="delete-btn" class="circle-btn">
-                    <img class="btn-img" src="../assets/trash.png" />
-                </button> 
+                <div id="add-btn-box" class="btn-with-tooltip">
+                    <button id="add-btn" class="circle-btn">
+                        <img class="btn-img" src="../assets/plus.png" />
+                    </button>
+                </div>
+
+                <div id="edit-btn-box" class="btn-with-tooltip"> 
+                    <button id="edit-btn" class="circle-btn">
+                        <img class="btn-img" src="../assets/edit.png" />
+                    </button>
+                </div>
+
+                <div id="delete-btn-box" class="btn-with-tooltip">
+                    <button id="delete-btn" class="circle-btn">
+                        <img class="btn-img" src="../assets/trash.png" />
+                    </button> 
+                </div>
+
             </div> 
         </div>
+
+        <!-- <div> 
+            <p>Current Limitations</p>
+        </div> -->
 
         <dialog id="member-form-dialog">
             <div id="form-header"></div>
             <div id="form-body">
-                <div id="img-selector">
-                    <img id="selected-img" />
-                    <div id="default-imgs"></div> 
+                <div id="form-img-selector">
+                    <img id="form-selected-img" />
+                    <div id="form-default-img-options"></div> 
+                    <p id="file-error-msg" class="hidden">* only images files are accepted</p>
                 </div>
 
                 <form id="member-form">
-                    <label for="name" class="text-label">Member Name</label>
+                    <label for="name" class="form-field-label">Member Name</label>
                     <input type="text" id="name" name="name" required  maxlength="20"
                         placeholder="Enter Name"
                         autocomplete="off"
@@ -51,35 +65,36 @@
                         oninput="this.setCustomValidity('')"
                     > 
 
-                    <div id="form-bottom-section">
-                        <div id="relation-selector">
-                            <p class="text-label">Relation to Member</p> 
-
-                            <div id="radio-btns-container">
+                    <div id="form-new-member-section">
+                        <div id="form-relation-selector">
+                            <p class="form-field-label">Relation to Member</p> 
+                            
+                            <div id="relation-radio-btns">
                                 <div class="radio-btn">
-                                    <input type="radio" id="child" name="relation" value="child" >
-                                    <label for="child">Child</label><br>
+                                    <input type="radio" id="child" name="relation" value="child">
+                                    <label for="child">Child</label>
                                 </div>
 
                                 <div class="radio-btn">
-                                    <input type="radio" id="parent" name="relation" value="parent" >
-                                    <label for="parent">Parent</label><br>
+                                    <input type="radio" id="parent" name="relation" value="parent">
+                                    <label for="parent">Parent</label>
                                 </div>
 
                                 <div class="radio-btn"> 
-                                    <input type="radio" id="sibling" name="relation" value="sibling" >
-                                    <label for="sibling">Sibling</label><br>
+                                    <input type="radio" id="sibling" name="relation" value="sibling">
+                                    <label for="sibling">Sibling</label>
                                 </div>
 
                                 <div class="radio-btn"> 
-                                    <input type="radio" id="spouse" name="relation" value="spouse" >
-                                    <label for="spouse">Spouse</label><br>
+                                    <input type="radio" id="spouse" name="relation" value="spouse">
+                                    <label for="spouse">Spouse</label>
                                 </div> 
                             </div>
                         </div>
-                        <div id="selected-member-container">
-                            <p class="text-label">Selected Member</p>  
-                            <img id="selected-member-img" />
+
+                        <div id="form-selected-member-section">
+                            <p class="form-field-label">Selected Member</p>  
+                            <img id="selected-member-img"/>
                             <p id="selected-member-name"></p>  
                         </div>
                     </div>
@@ -92,10 +107,11 @@
             </div>
         </dialog>
 
-       
-
         <div id="tree-container"> 
             <svg id="tree-svg" width="100%" height= "100%"></svg>  
+        </div>
+
+        <div id="snackbar" > snack bar message
         </div>
     </body>
 </html>  

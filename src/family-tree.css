@@ -50,7 +50,7 @@ body {
 
 }
  
-.circle-btn {
+.circle-btn { 
     width: 50px;
     height: 50px;
     background-color: slateblue;
@@ -148,24 +148,25 @@ dialog {
     margin: 20px;
 }
 
-#img-selector {
+#form-img-selector {
     display: flex;
     flex-direction: column; 
     align-items: center;
-    margin: 40px 20px 30px 20px;  
-    gap: 10px;
+    margin: 40px 20px 30px 20px;    
     border: 1px solid #969696;
     border-radius: 8px;
-    padding: 16px;
+    padding: 16px 16px 2px 16px;
 }
 
-#selected-img {
+#form-selected-img {
     width: 100px;
     height: 100px; 
+    margin-bottom: 20px;
+    border: 2px solid #969696;
     border-radius: 50%;
 }
 
-#default-imgs {
+#form-default-img-options {
     width: 100%;
     height: auto;
     display: flex; 
@@ -174,6 +175,14 @@ dialog {
     flex-direction: row;
     justify-content: space-between;     
     row-gap: 14px; 
+    margin-bottom: 20px;
+}
+
+#file-error-msg {
+    font-size: 12px;
+    width: 100%; 
+    color: #969696;
+    font-style: italic; 
 }
 
 .default-img {
@@ -181,7 +190,7 @@ dialog {
     height: 55px;
 }
 
-.default-img:hover, #custom-img:hover {
+.default-img:hover, #custom-img-selector:hover {
     outline: 2px solid white;
     border-radius: 50%;
     cursor: pointer;
@@ -189,7 +198,7 @@ dialog {
 }
  
 
-#custom-img {
+#custom-img-selector {
     width: 30px;
     height: 30px;
     border: 1px solid #969696;
@@ -222,7 +231,7 @@ input[type="file"] {
     margin-top: 35px;
 }
 
-.text-label {
+.form-field-label {
     color:#969696;
     font-size: 13px;
     margin: 0 3px;
@@ -239,14 +248,14 @@ input[type="text"] {
     margin-top: 5px;
 } 
 
-#form-bottom-section {
+#form-new-member-section {
     width: 100%;
     display: flex;
     flex-direction: row;
     margin: 40px 0px; 
 }
 
-#selected-member-container {
+#form-selected-member-section {
     width: 50%;
     display: flex;
     flex-direction: column;
@@ -266,11 +275,11 @@ input[type="text"] {
 
 
 
-#relation-selector {
+#form-relation-selector {
     width: 50%;
 }
 
-#radio-btns-container { 
+#relation-radio-btns { 
     width: 100%;  
     display: flex;
     flex-direction: column;
@@ -343,6 +352,7 @@ button:hover {
 
 
 .tooltip {
+    display: block;
     visibility: hidden;  
     color: #fff;
     font-size: 12px; 
@@ -351,7 +361,7 @@ button:hover {
     z-index: 1;
 }
   
-#custom-img:hover .tooltip {
+#custom-img-selector:hover .tooltip {
     visibility: visible;
     margin-top: 80px;
 }
@@ -360,4 +370,70 @@ button:hover {
     background-color: #3b3b3b;
     border-radius: 6px; 
     padding: 5px 8px;
+} 
+
+.btn-with-tooltip {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center; 
+}
+
+
+.btn-with-tooltip:hover .tooltip {
+    visibility: visible;
+    margin-top: 85px;
+}
+
+.tooltip-triangle {
+    width: 0;
+    height: 0;
+    margin-left: 10px;
+    border: solid 6px;
+    border-color: transparent transparent #3b3b3b transparent;
+}
+
+.tooltip {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;  
+}
+
+#snackbar { 
+    margin-left: -100px;  
+    background-color: #333;  
+    color: #fff;  
+    border-radius: 6px;  
+    padding: 10px 16px; 
+    position: fixed;  
+    left: 50%;
+    bottom: 30px;
+    visibility: hidden;
+}
+   
+#snackbar.show { 
+    visibility: visible; 
+    -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
+    animation: fadein 0.5s, fadeout 0.5s 2.5s;
+} 
+   
+@-webkit-keyframes fadein {
+    from {bottom: 0; opacity: 0;}
+    to {bottom: 30px; opacity: 1;}
+}
+
+@keyframes fadein {
+    from {bottom: 0; opacity: 0;}
+    to {bottom: 30px; opacity: 1;}
+}
+
+@-webkit-keyframes fadeout {
+    from {bottom: 30px; opacity: 1;}
+    to {bottom: 0; opacity: 0;}
+}
+
+@keyframes fadeout {
+    from {bottom: 30px; opacity: 1;}
+    to {bottom: 0; opacity: 0;}
 }
