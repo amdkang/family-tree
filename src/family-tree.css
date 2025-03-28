@@ -69,28 +69,35 @@ h1 {
     padding: 0; 
 }
 
-#subtitle {
-    display: inline-block;
-    font-size: 16px;
-    color: slateblue; 
-    margin: auto;
-}
- 
-#subtitle-btn { 
-    width: 20px;
-    height: 20px;
-    border: 1px solid slateblue;
-    border-radius: 30%;
-    background-color: transparent;
-    color: slateblue;  
-    text-align: center;
-    font-size: 14px;
-    margin-right: 5px;
+#subtitle-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 5px;
 }
 
-#subtitle-btn:hover { 
-    background-color: slateblue;
-    color: white;
+#subtitle { 
+    font-size: 16px;
+    color: slateblue;  
+}
+
+#subtitle-btn img { 
+    width: 10px;
+    height: 10px;
+}
+
+#subtitle-btn { 
+    width: 20px;
+    height: 20px; 
+    background-color: transparent; 
+    border: 1px solid transparent;
+    border-radius: 20%;
+    margin-left: -5px;
+    padding-top: 2px;
+}
+
+#subtitle-btn:hover {  
+    border: 1px solid #6a5acd; 
 }
 
 #tree-container {
@@ -302,6 +309,7 @@ input[type="file"] {
 .relation-btn-box label {
     font-size: 13px;
     color: rgb(233, 233, 233);
+    cursor: pointer;
 }
 
 input[type=radio]{

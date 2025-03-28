@@ -132,8 +132,7 @@ function handleMemberClick(selectedMemberID, memberNodeRect) {
             let formRight = memberNodeRect.right + 30 + formDialog.offsetWidth; 
             if (formRight < window.innerWidth) {
                 formDialog.style.left = `${ memberNodeRect.right + 30 }px`;
-            } else {
-                let rightPosition = memberNodeRect.right - 30 - formDialog.offsetWidth; 
+            } else { 
                 formDialog.style.right = `${ memberNodeRect.right - 30 }px`;
             }
             formDialog.style.top = "70px"; 
@@ -161,15 +160,10 @@ function handleAddMember() {
             default:
                 break;
         };
+        buildTree();
     } catch (err) { 
-        const snackbar = document.getElementById("snackbar");
-        snackbar.textContent = err.message;
-        snackbar.className = "show";
-        setTimeout(function(){ 
-            snackbar.className = snackbar.className.replace("show", ""); 
-        }, 3000); 
+        showSnackbar(err.message); 
     }
-    buildTree();
 };
 
 function handleEditMember() {   
@@ -180,8 +174,21 @@ function handleEditMember() {
 };
 
 function handleDelMember() {
-    treeUtils.deleteMember(selectedMember.memberID, members, levels);
-    buildTree();
+    try {
+        treeUtils.deleteMember(selectedMember.memberID, members, levels);
+        buildTree();
+    } catch(err) {
+        showSnackbar(err.message); 
+    }
+};
+
+function showSnackbar(message) {
+    const snackbar = document.getElementById("snackbar");
+    snackbar.textContent = message;
+    snackbar.className = "show";
+    setTimeout(function(){ 
+        snackbar.className = snackbar.className.replace("show", ""); 
+    }, 3000); 
 };
 
 

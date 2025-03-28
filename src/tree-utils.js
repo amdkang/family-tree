@@ -3,74 +3,74 @@ import { Marriage } from "./classes/Marriage.js";
 import { Member } from "./classes/Member.js";
 import { PARENT_CHILD_Y_DISTANCE, SIBLING_X_DISTANCE, SPOUSE_X_DISTANCE } from "./constants.js"; 
 
+/* Add Member Functions */
 
- 
-
-// create/adds parent member to existing child member  
+// create + add parent to existing child member  
 export function addParent(newParent, childID, members, levels) {    
-        let child = members.get(childID); 
-        if (child.level === -3) throw new Error("Cannot add members beyond this level");
-        if (child.isAddOnSpouse) throw new Error("Cannot add parents to this member");
-    
-        // make parent level if non-existent
-        addDefaultParent(child, levels);  
+    let child = members.get(childID); 
+    if (child.level === -3) throw new Error("Cannot add members beyond this level");
+    if (child.isAddOnSpouse) throw new Error("Cannot add parents to this member");
 
-
-        let parentMarr = getMarriage(levels, child.parentMarriage);  
-        let isAddOnSpouse = child.level-1 >= 0 && firstSpouseIsMain(parentMarr, members); 
-        let parent = new Member({ 
-            memberID: members.getNextID(), 
-            level: child.level-1, 
-            marriage: parentMarr.marriageID,
-            isAddOnSpouse: isAddOnSpouse, 
-            ...newParent 
-        });
-        parentMarr.between.push(parent.memberID);
-
-        // auto-create grandparent marriage/level if non-existent 
-        if (parent.level > -3) addDefaultParent(parent, levels);   
-        members.set(parent.memberID, parent); 
+    addDefaultParent(child, levels);  
+    let parentMarr = getMarriage(levels, child.parentMarriage);  
+    let isAddOnSpouse = child.level-1 >= 0 && firstSpouseIsMain(parentMarr, members); 
+    let parent = new Member({ 
+        memberID: members.getNextID(), 
+        level: child.level-1, 
+        marriage: parentMarr.marriageID,
+        isAddOnSpouse: isAddOnSpouse, 
+        ...newParent 
+    });
+    parentMarr.between.push(parent.memberID); 
+    if (parent.level > -3) addDefaultParent(parent, levels); // auto-create grandparent marriage/level   
+    members.set(parent.memberID, parent); 
 }; 
 
+// creates parent level + marriage for given child
 function addDefaultParent(child, levels) {   
     let parentLvl = levels.get(child.level-1);    
     if (!parentLvl) {  
         parentLvl = new Level({ levelID: child.level-1 });  
         levels.set(parentLvl.levelID, parentLvl);  
     }     
+
     let parentMarr = getMarriage(levels, child.parentMarriage);  
     if (!parentMarr) {  
         parentMarr = new Marriage({ marriageID: levels.getNextMarriageID(), levelID: parentLvl.levelID });  
         child.parentMarriage = parentMarr.marriageID; 
         levels.setMarriage(parentLvl.levelID, parentMarr.marriageID, parentMarr); 
     }  
+
     if (!parentMarr.children.includes(child.memberID)) { 
         parentMarr.children.push(child.memberID);   
     } 
 };
 
-// create/adds child member to existing parent member 
+// create + add child to existing parent member 
 export function addChild(newChild, parentID, members, levels) { 
     let parent = members.get(parentID);   
     if (parent.level === -3 || parent.level === 3) {
         throw new Error("Cannot add children to this member");
     }
 
-    // make child level if non-existent 
     let childLvl = levels.get(parent.level+1);  
     if (!childLvl) {  
         childLvl = new Level({ levelID: parent.level+1 });   
         levels.set(childLvl.levelID, childLvl);  
     } 
 
-    // // make parent marriage if non-existent 
     let parentMarr = getMarriage(levels, parent.marriage); 
     if (!parentMarr) {   
         let parentLvl = levels.get(parent.level); 
-        parentMarr = new Marriage({ marriageID: levels.getNextMarriageID(), levelID: parent.level, between: [parentID] });  
+        parentMarr = new Marriage({ 
+            marriageID: levels.getNextMarriageID(), 
+            levelID: parent.level, 
+            between: [parentID] 
+        });  
         parent.marriage = parentMarr.marriageID;
         levels.setMarriage(parentLvl.levelID, parentMarr.marriageID, parentMarr); 
     }  
+
     let child = new Member({ 
         memberID: members.getNextID(), 
         level: childLvl.levelID, 
@@ -81,7 +81,7 @@ export function addChild(newChild, parentID, members, levels) {
     parentMarr.children.push(child.memberID);
 };
 
-// create/adds sibling to existing member  
+// create + add sibling to existing member  
 export function addSibling(newSiblingData, oldSiblingID, members, levels) {
     let oldSibling = members.get(oldSiblingID);
     if (oldSibling.level <= -2 || oldSibling.isAddOnSpouse) { 
@@ -103,18 +103,21 @@ export function addSibling(newSiblingData, oldSiblingID, members, levels) {
     parentMarr.children.push(newSibling.memberID);
 };
 
-// create/adds spouse to existing member 
+// create + add spouse to existing member 
 export function addSpouse(newSpouseData, oldSpouseID, members, levels) { 
     let oldSpouse = members.get(oldSpouseID);
     let marriage = getMarriage(levels, oldSpouse.marriage);   
     if (oldSpouse.isAddOnSpouse || marriage?.between.length === 2) {  
         throw new Error("Cannot add spouse to this member");
     };
-    let spouseLvl = levels.get(oldSpouse.level);
 
-    // make/set spouse marriage if non-existent 
+    let spouseLvl = levels.get(oldSpouse.level);
     if (!marriage) {
-        marriage = new Marriage({ marriageID: levels.getNextMarriageID(), levelID: oldSpouse.level, between: [oldSpouseID] }); 
+        marriage = new Marriage({
+            marriageID: levels.getNextMarriageID(), 
+            levelID: oldSpouse.level, 
+            between: [oldSpouseID] 
+        }); 
         oldSpouse.marriage = marriage.marriageID;    
         levels.setMarriage(spouseLvl.levelID, marriage.marriageID, marriage); 
     }
@@ -128,59 +131,60 @@ export function addSpouse(newSpouseData, oldSpouseID, members, levels) {
 
     if (!isMainParent(oldSpouseID, members, levels)) {
         newSpouse.isAddOnSpouse = true;
-    } else { // auto-create parent marriage/level if newly added spouse is a `main parent`  
+    } else {
         addDefaultParent(newSpouse, levels); 
-    } 
-
+    }  
     marriage.between.push(newSpouse.memberID);
     members.set(newSpouse.memberID, newSpouse);    
 };
 
 
+
+/* Member Positioning Functions */
+
 export function positionMembers(members, levels) {   
     const user = members.get(1); 
     const userLvl = levels.get(0);
+    const parentMarr = getMarriage(levels, user.parentMarriage); 
+    const grandparentsFull = parentMarr && areSpouseParentsFull(parentMarr, members, levels); 
     
-    const parentMarriage = getMarriage(levels, user.parentMarriage); 
-    const grandparentsFull = parentMarriage && areSpouseParentsFull(parentMarriage, members, levels); 
-    
-
     // CHECK THIS -> more accurate/uniform way to adjust parents spouse distance? 
     // in levels 0 to -2 (main user ~ grandparents), each member can have 1 spouse & 2 parents 
     // adjust /spouse distance to ensure no overlap between members
     adjustSpouseXDist(-1, (grandparentsFull ? 4 : 2) * SPOUSE_X_DISTANCE, members, levels);
     adjustSpouseXDist(-2, 2 * SPOUSE_X_DISTANCE, members, levels);
     adjustSpouseXDist(-3, SPOUSE_X_DISTANCE/2, members, levels);  
-    members.map.forEach((value) => { 
-        let member = value;
+ 
+    for (let member of members.map.values()) {
         member.x = 0;
         member.y = 0;
-    }); 
- 
-    orderMainUserSiblings(user, parentMarriage, members, levels); 
-    positionChildren(parentMarriage, userLvl, members, levels); // positions main user/siblings/children & lower levels
+    }
 
-    // positions main user's parents & upper levels
-    if (parentMarriage && parentMarriage.between.length > 0) { 
+    // positions main user + siblings + children & lower levels
+    positionSpouses(user, parentMarr, members, levels); 
+    positionChildren(parentMarr, userLvl, members, levels); 
+
+    // position main user's parents & upper levels
+    if (parentMarr && parentMarr.between.length > 0) { 
         const userParentLvl = levels.get(-1);  
-        positionParents(parentMarriage, userParentLvl, members, levels); 
+        positionParents(parentMarr, userParentLvl, members, levels); 
     } 
 };
 
-
-function orderMainUserSiblings(user, parentMarriage, members, levels) {
-    if (parentMarriage.children.length > 1) { 
-        let userMarriage = getMarriage(levels, user.marriage);
-        if (userMarriage) { 
+// positions given member/their spouse relative to their siblings
+// used to prevent overlap between each other's siblings
+function positionSpouses(member, parentMarr, members, levels) {
+    if (parentMarr.children.length > 1) { 
+        let memberMarr = getMarriage(levels, member.marriage);
+        if (memberMarr) { 
             //position spouses at far-most end amongst their siblings
-            for (let i = 0; i < userMarriage.between.length; i++) {
-                let spouse = members.get(userMarriage.between[i]);
+            for (let i = 0; i < memberMarr.between.length; i++) {
+                let spouse = members.get(memberMarr.between[i]);
                 let spouseParentMarr = getMarriage(levels, spouse.parentMarriage);
                 if (spouseParentMarr) {
-                    let spouseIndex = getElementIndex(spouse.memberID, spouseParentMarr.children);
-                
                     // left parent = positioned last/right-most amongst siblings
                     // right parent = positioned first/left-most amongst siblings
+                    let spouseIndex = getElementIndex(spouse.memberID, spouseParentMarr.children);
                     let switchIndex = i === 0 ? spouseParentMarr.children.length-1 : 0;
                     let switchSiblingID = spouseParentMarr.children[switchIndex];
                     spouseParentMarr.children[switchIndex] = spouse.memberID;
@@ -197,13 +201,12 @@ function positionChildren(marriage, level, members, levels) {
     const midChild = members.get(marriage.children[midChildIndex]);
     let midpointX= 0;  
  
-    // position middle child
-    if (midChild.memberID !== 1) { // main user always at (0,0)
+    // position middle child first
+    if (midChild.memberID !== 1) { // ignore main user who's always at (0,0)
         const parent1 = members.get(marriage.between[0]);
-        if (parent1) {
-            //1 parent -> use single parent as midpoint
-            midpointX = parent1.x; 
-
+        if (parent1) { 
+            midpointX = parent1.x;  //1 parent -> use single parent as midpoint
+ 
             //2 parents -> use midpoint between parents
             if (marriage.between.length === 2) { 
                 let parent2 = members.get(marriage.between[1]);
@@ -218,70 +221,32 @@ function positionChildren(marriage, level, members, levels) {
             midChild.x = midpointX;
             midChild.y = parent1.y + PARENT_CHILD_Y_DISTANCE; 
         }
-    }
-    // if (marriage.children.length > 1) {
-        positionChildSiblings(midChildIndex, marriage, level, members, levels);
-    // }
+    } 
+    positionSiblings(midChildIndex, marriage, level, members, levels); 
 };
 
-// positions siblings around middle child in given marriage
-// function positionChildSiblings(midChildIndex, marriage, level, members, levels) {   
-//     let midChild = members.get(marriage.children[midChildIndex]);
-
-//     for (let i = 0; i < marriage.children.length; i++) { 
-//         // if (i !== midChildIndex) {
-//             // calculate each sibling's distance from middle child
-//             let xOffset = Math.abs(midChildIndex - i) * level.siblingXDist;  
-//             if (i < midChildIndex) xOffset *= -1;  
-
-//             // set coordinates for siblings & their spouses/children
-//             let sibling = members.get(marriage.children[i]);    
-//             if (sibling.memberID !== midChild.memberID) {
-//                 sibling.x =  midChild.x + xOffset;
-//                 sibling.y = midChild.y;
-//             }
-
-//             let siblingMarr = getMarriage(levels, sibling.marriage);
-//             if (siblingMarr) {
-//                 const spouse = getSpouse(sibling.memberID, siblingMarr, members);
-//                 if (spouse) {  
-//                     spouse.x = sibling.x + siblingMarr.spouseXDist;
-//                     spouse.y = sibling.y; 
-//                 }    
-//                 if (siblingMarr.children.length > 0) { 
-//                     const siblingChildLvl = levels.get(siblingMarr.levelID + 1);
-//                     if (siblingChildLvl) { 
-//                         positionChildren(siblingMarr, siblingChildLvl, members, levels);
-//                     }
-//                 }
-//             }
-//         // }
-//     }
-// };
-function positionChildSiblings(midChildIndex, marriage, level, members, levels) {   
+// positions siblings around middle child in given marriage 
+function positionSiblings(midChildIndex, marriage, level, members, levels) {   
     let midChild = members.get(marriage.children[midChildIndex]); 
-
-    // stores bool values for whether previous sibling has spouse
+    let prevHasSpouse = [];  
+    // `prevHasSpouse` stores bool values for whether previous sibling has spouse
     // used to increase distance between siblings with spouses
-    let prevHasSpouse = []; 
+
     for (let i = 0; i < marriage.children.length; i++) {  
         let sibling = members.get(marriage.children[i]);     
         prevHasSpouse.push(sibling.marriage > 0); 
 
         // calculate each sibling's distance from middle child
+        // account for spouses (always positioned to right of sibling)
         let xOffset = Math.abs(midChildIndex - i) * level.siblingXDist;  
         if (i < midChildIndex) {
             xOffset *= -1;
-            if (sibling.marriage > 0) {
-                xOffset -= SPOUSE_X_DISTANCE;
-            }
+            if (sibling.marriage > 0) xOffset -= SPOUSE_X_DISTANCE;
         } else if (i > midChildIndex) {  
-            if (prevHasSpouse[i-1]) {
-                xOffset += SPOUSE_X_DISTANCE;
-            }
+            if (prevHasSpouse[i-1]) xOffset += SPOUSE_X_DISTANCE; 
         }
         
-        // set coordinates for siblings & their spouses/children
+        // set coordinates for siblings + their spouses/children
         if (sibling.memberID !== midChild.memberID) {
             sibling.x =  midChild.x + xOffset;
             sibling.y = midChild.y;
@@ -303,8 +268,7 @@ function positionChildSiblings(midChildIndex, marriage, level, members, levels) 
     } 
 };
 
-
-// positions spouses for a given marriage
+// positions parents relative to each other for a given marriage
 function positionParents(marriage, level, members, levels) {  
     // use middle child's coordinates to position parents
     const midChildIndex = getMidChildIndex(marriage);
@@ -315,29 +279,27 @@ function positionParents(marriage, level, members, levels) {
         ? midChild.x + childLvl.siblingXDist / 2 
         : midChild.x
     ; 
-
+    
     // order parents amongst their siblings 
     if (marriage.between.length > 0) { 
         const parent1 = members.get(marriage.between[0]);
         if (parent1) {
             parent1.x = midpointX;
-            parent1.y = midChild.y - PARENT_CHILD_Y_DISTANCE; 
-            
-            orderMainUserSiblings(parent1, marriage, members, levels);
-            if (marriage.between.length === 2) {
-                // 2 parents -> position left & right parent at the far end amongst their siblings
+            parent1.y = midChild.y - PARENT_CHILD_Y_DISTANCE;  
+            positionSpouses(parent1, marriage, members, levels);
+            if (marriage.between.length === 2) { 
                 const parent2 = members.get(marriage.between[1]);
                 parent1.x -= marriage.spouseXDist/2;
                 parent2.x = midpointX + marriage.spouseXDist/2;
                 parent2.y = parent1.y;  
-                if (getMarriage(levels, parent2.marriage)) {
-                    orderMainUserSiblings(parent2, getMarriage(levels, parent2.marriage), members, levels);  
+                if (getMarriage(levels, parent2.marriage)) { 
+                    positionSpouses(parent2, getMarriage(levels, parent2.marriage), members, levels);  
                 }   
             }
         };
 
         // position each parent's siblings/parents
-        marriage.between.forEach(parentID => {
+        marriage.between.forEach((parentID) => {
             let parent = members.get(parentID);
             let gparentMarriage = getMarriage(levels, parent.parentMarriage);  
             if (gparentMarriage) {
@@ -439,6 +401,9 @@ function positionSiblingFamily(parentSibling, level, members, levels) {
     }
 }; 
  
+
+
+/* General Utility Functions */
 
 function getMidChildIndex(marriage) {
     const childCount = marriage.children.length; 

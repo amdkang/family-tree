@@ -2,7 +2,7 @@ const primaryColor = "#6a5acd";
 const contrastColor = "#fff";
 const NODE_TOP_CONNECTOR_LENGTH = 10;
 const NODE_RADIUS = 50;  
-const textTransform = `(${ NODE_RADIUS }, ${ NODE_RADIUS*2 + 18 })`;
+const textTransform = `(${ NODE_RADIUS }, ${ NODE_RADIUS*2 + 20 })`;
 let nodeLines = []; 
 let members = [], levels = [];
 
@@ -91,7 +91,7 @@ function createNodes (handleMemberClick) {
             .text(d => d)
             .attr("stroke", contrastColor)
             .attr("fill", contrastColor)
-            .attr("font-size", "18px")
+            .attr("font-size", "17px") 
             .attr("font-weight", "200")
             .attr("letter-spacing", "1");
     });
@@ -204,7 +204,7 @@ const connectParentChildNodes = (marr) => {
         parent1Text.x += parent1Position.x;
         parent1Text.y += parent1Position.y;
         parentChildLine.start = {
-            x: parent1Text.x + parent1Text.width/2,
+            x: parent1Text.x + parent1Text.width/2 - 1,
             y: parent1Text.y + parent1Text.height + 4
         };  
     } else if (marr.between.length === 2) {
@@ -242,15 +242,14 @@ const connectParentChildNodes = (marr) => {
         const midChild = members.get(marr.children[midChildIndex]);
         const midChildPosition = getElementPosition(midChild.memberID, "g");
         const midChildCircle = getElementBounds(midChild.memberID, "circle");
-        midChildCircle.x += midChildPosition.x;
-        midChildCircle.y += midChildPosition.y;
+        midChildCircle.x += midChildPosition.x
+        midChildCircle.y += midChildPosition.y; 
 
         // odd # kids -> use middle child node as end point 
-        // even # kids -> middle 2 childrens' sibling line's midpoint as end point
-        parentChildLine.end.y = marr.children.length  === 1 ? midChildCircle.y : midChildCircle.y - NODE_TOP_CONNECTOR_LENGTH;
-        console.log('parentChildLine.end.y ', parentChildLine.end.y);
-        // parentChildLine.end.y = marr.children.length % 2 === 0 ? midChildCircle.y - 10 : midChildCircle.y;
+        // even # kids -> middle 2 childrens' sibling line's midpoint as end point  
         parentChildLine.end.x = parentChildLine.start.x; 
+        parentChildLine.end.y = marr.children.length > 1 ? 
+            midChildCircle.y - NODE_TOP_CONNECTOR_LENGTH : midChildCircle.y;
         nodeLines.push(parentChildLine); 
     }
 };
