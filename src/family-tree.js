@@ -5,7 +5,7 @@ import { Level } from "./classes/Level.js";
 import { Marriage } from "./classes/Marriage.js";
 import { Member } from "./classes/Member.js";
 
-const imgsCount = 5; 
+const defaultImgsCount = 5; 
 let selectedImgPath = "../assets/avatar1.png";
 let selectedMember = null; 
 let selectMode = null;
@@ -31,7 +31,7 @@ var members = new MemberMap(
     [1]
 );    
 
-const dialog = document.querySelector("dialog");
+const formDialog = document.querySelector("dialog");
 const memberForm = document.getElementById("member-form");
 const selectedMemberImg = document.getElementById("form-selected-img");
 const nameInput = document.getElementById("name");   
@@ -39,22 +39,17 @@ const nameInput = document.getElementById("name");
 window.onload = function () {  
     setupHeaderButtons();
     setupForm();    
-    dragElement(dialog);
     buildTree(); 
 };   
 
 function showElement(element) {
     let classes = element.classList;  
-    if (classes.contains("hidden")) {
-        classes.remove("hidden");
-    }
+    if (classes.contains("hidden")) classes.remove("hidden"); 
 };
 
 function hideElement(element) {
     let classes = element.classList;  
-    if (!classes.contains("hidden")) {
-        classes.add("hidden");
-    }
+    if (!classes.contains("hidden")) classes.add("hidden"); 
 };
 
 function createTooltip(tooltipText) {
@@ -123,17 +118,27 @@ function buildTree() {
 };
 
 // callback to add, edit, or delete selected member 
-function handleMemberClick(selectedMemberID, memberNodeRect) { 
-    selectedMember = members.get(selectedMemberID);    
-    if (selectMode == "delete") {
-        handleDelMember();
-    } else { // open form to add/edit member
-        setFormValues();   
-        // position form next to selected member node
-        dialog.style.left = `${ memberNodeRect.right + 30 }px`;
-        dialog.style.top = `${ memberNodeRect.top + 50 - 240 }px`; 
-        dialog.showModal(); 
-    } 
+function handleMemberClick(selectedMemberID, memberNodeRect) {  
+    if (selectMode) {
+        selectedMember = members.get(selectedMemberID);    
+        if (selectMode == "delete") {
+            handleDelMember();
+        } else { 
+            // open form to add/edit member
+            setFormValues();   
+            formDialog.showModal(); 
+ 
+            // position form next to selected member node
+            let formRight = memberNodeRect.right + 30 + formDialog.offsetWidth; 
+            if (formRight < window.innerWidth) {
+                formDialog.style.left = `${ memberNodeRect.right + 30 }px`;
+            } else {
+                let rightPosition = memberNodeRect.right - 30 - formDialog.offsetWidth; 
+                formDialog.style.right = `${ memberNodeRect.right - 30 }px`;
+            }
+            formDialog.style.top = "70px"; 
+        } 
+    }
 };
 
 function handleAddMember() { 
@@ -185,7 +190,12 @@ function handleDelMember() {
 
 function setupForm() {  
     setupImgSelector();  
+    dragForm(formDialog);
     document.getElementById("cancel-btn").onclick = closeForm;
+    document.addEventListener("keydown", function (event) {
+        if (event.key === "Escape") closeForm(); 
+    });
+
     memberForm.onsubmit = (event) => {
         event.preventDefault();
         if (selectMode == "add") {
@@ -218,7 +228,8 @@ function setupImgSelector() {
     const imgSelector = document.getElementById("form-default-img-options");  
     selectedMemberImg.src = selectedImgPath; 
 
-    for (let i = 1; i <= imgsCount; i++) {  // set default selectable images
+    // set default selectable images
+    for (let i = 1; i <= defaultImgsCount; i++) { 
         let imgName = `../assets/avatar${i}.png`;
         let img = document.createElement("img");
         img.className = "default-img";
@@ -236,6 +247,7 @@ function setupImgSelector() {
 function createCustomImgSelector() {
     let customImgSelector = document.createElement("label");
     customImgSelector.id = "custom-img-selector"; 
+    customImgSelector.className = "btn-with-tooltip";
     customImgSelector.textContent = "+"; 
     customImgSelector.append(createTooltip("Upload an Image"));
 
@@ -250,7 +262,8 @@ function createCustomImgSelector() {
             if (file.type.startsWith("image/")) {
                 hideElement(fileInputErr); 
                 const reader = new FileReader(); 
-                reader.onload = function (event) { // set uploaded file as member's image
+                reader.onload = function (event) { 
+                    // set uploaded file as member's image
                     selectedImgPath = event.target.result;
                     selectedMemberImg.src = selectedImgPath;  
                 }; 
@@ -273,37 +286,37 @@ function closeForm() {
     selectedMemberImg.src = selectedImgPath;  
     memberForm.reset();
     exitSelectMemberMode();
-    dialog.close();
+    formDialog.close();
 };
- 
 
-function dragElement(elmnt) {
+// setup form's draggable functionality
+function dragForm(form) {
     const formHeader = document.getElementById("form-header"); 
     formHeader.onmousedown = dragMouseDown;
     var newMouseX = 0, newMouseY = 0, startMouseX = 0, startMouseY = 0;
 
     function dragMouseDown(event) { 
         event.preventDefault();
-      // get starting cursor position
-      startMouseX = event.clientX;
-      startMouseY = event.clientY;
-      document.onmouseup = stopDrag; 
-      document.onmousemove = startDrag;
-    }
+        // get starting cursor position
+        startMouseX = event.clientX;
+        startMouseY = event.clientY;
+        document.onmouseup = stopDrag; 
+        document.onmousemove = startDrag;
+    } 
     
     function startDrag(event) { 
-      event.preventDefault();
-      // calculate + set new cursor position
-      newMouseX = startMouseX - event.clientX;
-      newMouseY = startMouseY - event.clientY;
-      startMouseX = event.clientX;
-      startMouseY = event.clientY;
-      elmnt.style.top = (elmnt.offsetTop - newMouseY) + "px";
-      elmnt.style.left = (elmnt.offsetLeft - newMouseX) + "px";
+        event.preventDefault();
+        // calculate + set new cursor position
+        newMouseX = startMouseX - event.clientX;
+        newMouseY = startMouseY - event.clientY;
+        startMouseX = event.clientX;
+        startMouseY = event.clientY; 
+        form.style.top = `${ form.offsetTop - newMouseY }px`;
+        form.style.left = `${ form.offsetLeft - newMouseX }px`;
     }
   
     function stopDrag() { 
-      document.onmouseup = null;
-      document.onmousemove = null;
+        document.onmouseup = null;
+        document.onmousemove = null;
     }
 };

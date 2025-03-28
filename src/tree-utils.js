@@ -7,31 +7,29 @@ import { PARENT_CHILD_Y_DISTANCE, SIBLING_X_DISTANCE, SPOUSE_X_DISTANCE } from "
  
 
 // create/adds parent member to existing child member  
-export function addParent(newParent, childID, members, levels) {  
-    if (1==1) throw new Error("Cannot add members beyond this level");
-
-    // let child = members.get(childID); 
-    // if (child.level === -3) throw new Error("Cannot add members beyond this level");
-    // if (child.isAddOnSpouse) throw new Error("Cannot add parents to this member");
- 
-    // // make parent level if non-existent
-    // addDefaultParent(child, levels);  
+export function addParent(newParent, childID, members, levels) {    
+        let child = members.get(childID); 
+        if (child.level === -3) throw new Error("Cannot add members beyond this level");
+        if (child.isAddOnSpouse) throw new Error("Cannot add parents to this member");
+    
+        // make parent level if non-existent
+        addDefaultParent(child, levels);  
 
 
-    // let parentMarr = getMarriage(levels, child.parentMarriage);  
-    // let isAddOnSpouse = child.level-1 >= 0 && firstSpouseIsMain(parentMarr, members); 
-    // let parent = new Member({ 
-    //     memberID: members.getNextID(), 
-    //     level: child.level-1, 
-    //     marriage: parentMarr.marriageID,
-    //     isAddOnSpouse: isAddOnSpouse, 
-    //     ...newParent 
-    // });
-    // parentMarr.between.push(parent.memberID);
+        let parentMarr = getMarriage(levels, child.parentMarriage);  
+        let isAddOnSpouse = child.level-1 >= 0 && firstSpouseIsMain(parentMarr, members); 
+        let parent = new Member({ 
+            memberID: members.getNextID(), 
+            level: child.level-1, 
+            marriage: parentMarr.marriageID,
+            isAddOnSpouse: isAddOnSpouse, 
+            ...newParent 
+        });
+        parentMarr.between.push(parent.memberID);
 
-    // // auto-create grandparent marriage/level if non-existent 
-    // if (parent.level > -3) addDefaultParent(parent, levels);   
-    // members.set(parent.memberID, parent); 
+        // auto-create grandparent marriage/level if non-existent 
+        if (parent.level > -3) addDefaultParent(parent, levels);   
+        members.set(parent.memberID, parent); 
 }; 
 
 function addDefaultParent(child, levels) {   

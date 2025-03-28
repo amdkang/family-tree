@@ -247,7 +247,9 @@ const connectParentChildNodes = (marr) => {
 
         // odd # kids -> use middle child node as end point 
         // even # kids -> middle 2 childrens' sibling line's midpoint as end point
-        parentChildLine.end.y = marr.children.length % 2 === 0 ? midChildCircle.y - 10 : midChildCircle.y;
+        parentChildLine.end.y = marr.children.length  === 1 ? midChildCircle.y : midChildCircle.y - NODE_TOP_CONNECTOR_LENGTH;
+        console.log('parentChildLine.end.y ', parentChildLine.end.y);
+        // parentChildLine.end.y = marr.children.length % 2 === 0 ? midChildCircle.y - 10 : midChildCircle.y;
         parentChildLine.end.x = parentChildLine.start.x; 
         nodeLines.push(parentChildLine); 
     }
